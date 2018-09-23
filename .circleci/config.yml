@@ -1,23 +1,57 @@
+defaults: &defaults
+  environment:
+    DOCKER_IMAGE_NAME: 31z4/ethereum-prometheus-exporter
+
+tags_filter: &tags_filter
+  tags:
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
 workflows:
   version: 2
-  build-test-lint:
+  test-lint-build-push:
     jobs:
-    - build
-    - test
-    - lint
+    - lint:
+        # See https://circleci.com/docs/2.0/workflows/#git-tag-job-execution
+        # for explanation on why we need a tags filter here.
+        filters:
+          <<: *tags_filter
+    - test:
+        filters:
+          <<: *tags_filter
+    - build:
+        filters:
+          <<: *tags_filter
+    - push:
+        requires:
+        - test
+        - lint
+        - build
+        filters:
+          <<: *tags_filter
+          branches:
+            ignore: /.*/
 
 version: 2
 jobs:
   build:
+    <<: *defaults
     docker:
-    - image: golang:1.11
+    - image: docker:stable-git
     steps:
     - checkout
 
+    - setup_remote_docker:
+        docker_layer_caching: true
+
     - run:
-        name: Build a binary
-        command:
-          CGO_ENABLED=0 go build -ldflags '-s -w' github.com/31z4/ethereum-prometheus-exporter/cmd/ethereum_exporter
+        name: Build and save a Docker image
+        command: |
+          docker build -t $DOCKER_IMAGE_NAME .
+          docker save --output image.tar $DOCKER_IMAGE_NAME
+    - persist_to_workspace:
+        root: .
+        paths:
+        - image.tar
 
   test:
     docker:
@@ -45,3 +79,22 @@ jobs:
         name: Run GolangCI-Lint
         command: |
           golangci-lint run
+
+  push:
+    <<: *defaults
+    docker:
+    - image: docker:stable-git
+    steps:
+    - setup_remote_docker
+
+    - attach_workspace:
+        at: .
+
+    - run:
+        name: Load, tag and push a Docker image
+        command: |
+          docker load --input image.tar
+          docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$CIRCLE_TAG
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
+          docker push $DOCKER_IMAGE_NAME
+          docker push $DOCKER_IMAGE_NAME:$CIRCLE_TAG
