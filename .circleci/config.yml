@@ -1,0 +1,39 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: golang:1.11
+    steps:
+    - checkout
+
+    - run:
+        name: Build a binary
+        command:
+          CGO_ENABLED=0 go build -ldflags '-s -w' github.com/31z4/ethereum-prometheus-exporter/cmd/ethereum_exporter
+
+  test:
+    docker:
+      - image: golang:1.11
+    steps:
+      - checkout
+
+      - run:
+          name: Run tests with coverage
+          command: |
+            go test -v -cover -race ./...
+
+  lint:
+    docker:
+    - image: golang:1.11
+    steps:
+    - checkout
+
+    - run:
+        name: Download and install GolangCI-Lint
+        command: |
+          curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.10.2
+
+    - run:
+        name: Run GolangCI-Lint
+        command: |
+          golangci-lint run
