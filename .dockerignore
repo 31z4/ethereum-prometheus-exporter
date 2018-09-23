@@ -1,0 +1,7 @@
+.circleci
+.git
+.golangci.yml
+.idea
+Dockerfile
+LICENSE
+README.md
