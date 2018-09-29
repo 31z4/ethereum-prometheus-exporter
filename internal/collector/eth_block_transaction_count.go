@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"sync"
+
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,6 +11,12 @@ import (
 type EthBlockTransactionCount struct {
 	rpc  *rpc.Client
 	desc *prometheus.Desc
+}
+
+var tags = []string{
+	"earliest",
+	"latest",
+	"pending",
 }
 
 func (collector *EthBlockTransactionCount) collectByTag(tag string, ch chan<- prometheus.Metric) {
@@ -39,7 +47,15 @@ func (collector *EthBlockTransactionCount) Describe(ch chan<- *prometheus.Desc) 
 }
 
 func (collector *EthBlockTransactionCount) Collect(ch chan<- prometheus.Metric) {
-	go collector.collectByTag("earliest", ch)
-	go collector.collectByTag("latest", ch)
-	go collector.collectByTag("pending", ch)
+	var wg sync.WaitGroup
+
+	for _, t := range tags {
+		wg.Add(1)
+		go func(tag string) {
+			defer wg.Done()
+			collector.collectByTag(tag, ch)
+		}(t)
+	}
+
+	wg.Wait()
 }
