@@ -31,8 +31,7 @@ func (collector *EthGasPrice) Describe(ch chan<- *prometheus.Desc) {
 
 func (collector *EthGasPrice) Collect(ch chan<- prometheus.Metric) {
 	var result hexutil.Big
-	err := collector.rpc.Call(&result, "eth_gasPrice")
-	if err != nil {
+	if err := collector.rpc.Call(&result, "eth_gasPrice"); err != nil {
 		ch <- prometheus.NewInvalidMetric(collector.desc, err)
 		return
 	}

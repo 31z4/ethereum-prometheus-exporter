@@ -6,30 +6,30 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type NetPeerCount struct {
+type EthHashrate struct {
 	rpc  *rpc.Client
 	desc *prometheus.Desc
 }
 
-func NewNetPeerCount(rpc *rpc.Client) *NetPeerCount {
-	return &NetPeerCount{
+func NewEthHashrate(rpc *rpc.Client) *EthHashrate {
+	return &EthHashrate{
 		rpc: rpc,
 		desc: prometheus.NewDesc(
-			"net_peer_count",
-			"the number of peers currently connected to the client",
+			"eth_hashrate",
+			"the number of hashes per second that the node is mining with",
 			nil,
 			nil,
 		),
 	}
 }
 
-func (collector *NetPeerCount) Describe(ch chan<- *prometheus.Desc) {
+func (collector *EthHashrate) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.desc
 }
 
-func (collector *NetPeerCount) Collect(ch chan<- prometheus.Metric) {
+func (collector *EthHashrate) Collect(ch chan<- prometheus.Metric) {
 	var result hexutil.Uint64
-	if err := collector.rpc.Call(&result, "net_peerCount"); err != nil {
+	if err := collector.rpc.Call(&result, "eth_hashrate"); err != nil {
 		ch <- prometheus.NewInvalidMetric(collector.desc, err)
 		return
 	}
