@@ -32,6 +32,9 @@ func main() {
 	addr := flag.String("addr", ":9368", "listen address")
 
 	flag.Parse()
+	if len(flag.Args()) > 0 {
+		flag.Usage()
+	}
 
 	rpc, err := rpc.Dial(*url)
 	if err != nil {
@@ -41,7 +44,12 @@ func main() {
 	registry := prometheus.NewPedanticRegistry()
 	registry.MustRegister(
 		collector.NewNetPeerCount(rpc),
+		collector.NewEthBlockNumber(rpc),
 		collector.NewEthGasPrice(rpc),
+		collector.NewEthBlockTransactionCount(rpc),
+		collector.NewEthHashrate(rpc),
+		collector.NewEthSyncing(rpc),
+		collector.NewParityNetPeers(rpc),
 	)
 
 	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{

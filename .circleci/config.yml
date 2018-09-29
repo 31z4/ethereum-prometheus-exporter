@@ -97,4 +97,3 @@ jobs:
           docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$CIRCLE_TAG
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
           docker push $DOCKER_IMAGE_NAME
-          docker push $DOCKER_IMAGE_NAME:$CIRCLE_TAG
