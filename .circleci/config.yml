@@ -62,7 +62,8 @@ jobs:
       - run:
           name: Run tests with coverage
           command: |
-            go test -v -cover -race ./...
+            go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+            bash <(curl -s https://codecov.io/bash)
 
   lint:
     docker:
