@@ -51,6 +51,12 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 
 Contributions are greatly appreciated. The project follows the typical GitHub pull request model. Before starting any work, please either comment on an existing issue or file a new one.
 
+## Support and Donate
+
+You can show your appreciation for the project and support future development by donating.
+
+[![Donate with Ethereum](https://en.cryptobadges.io/badge/big/0xcaDe516c2c2d916eDf44b958ED5B52C01039fad6)](https://en.cryptobadges.io/donate/0xcaDe516c2c2d916eDf44b958ED5B52C01039fad6)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
