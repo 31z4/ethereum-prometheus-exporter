@@ -32,7 +32,9 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 | net_peers | The number of peers currently connected to the client. | |
 | eth_block_number | The number of most recent block. | |
 | eth_gas_price | The current price per gas in wei. *Might be inaccurate*. | |
-| eth_block_transactions | The number of transactions in a block. | tag |
+| eth_earliest_block_transactions | The number of transactions in an earliest block. | |
+| eth_latest_block_transactions | The number of transactions in a latest block. | |
+| eth_pending_block_transactions | The number of transactions in a pending block. | |
 | eth_hashrate | The number of hashes per second that the node is mining with. | |
 | eth_syncing | Data about the sync status. | block |
 | parity_net_peers | The number of peers currently connected to the client. *Available only for Parity*. | status |
