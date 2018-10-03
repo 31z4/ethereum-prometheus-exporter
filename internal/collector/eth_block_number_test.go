@@ -68,7 +68,10 @@ func TestEthBlockNumberCollect(t *testing.T) {
 		if err := result.Write(&metric); err != nil {
 			t.Fatalf("expected metric, got %#v", err)
 		}
-		if got := *metric.Counter.Value; got != 3220 {
+		if got := len(metric.Label); got > 0 {
+			t.Fatalf("expected 0 labels, got %d", got)
+		}
+		if got := *metric.Gauge.Value; got != 3220 {
 			t.Fatalf("got %v, want 3220", got)
 		}
 	}

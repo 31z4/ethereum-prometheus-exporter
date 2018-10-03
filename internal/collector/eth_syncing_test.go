@@ -19,13 +19,13 @@ func TestEthSyncingCollectError(t *testing.T) {
 	}
 
 	collector := NewEthSyncing(rpc)
-	ch := make(chan prometheus.Metric, 1)
+	ch := make(chan prometheus.Metric, 3)
 
 	collector.Collect(ch)
 	close(ch)
 
-	if got := len(ch); got != 1 {
-		t.Fatalf("got %v, want 1", got)
+	if got := len(ch); got != 3 {
+		t.Fatalf("got %v, want 3", got)
 	}
 
 	var metric dto.Metric
@@ -55,13 +55,13 @@ func TestEthSyncingCollectNotSyncing(t *testing.T) {
 	}
 
 	collector := NewEthSyncing(rpc)
-	ch := make(chan prometheus.Metric, 1)
+	ch := make(chan prometheus.Metric, 3)
 
 	collector.Collect(ch)
 	close(ch)
 
-	if got := len(ch); got != 1 {
-		t.Fatalf("got %v, want 1", got)
+	if got := len(ch); got != 3 {
+		t.Fatalf("got %v, want 3", got)
 	}
 
 	var metric dto.Metric
@@ -91,13 +91,13 @@ func TestEthSyncingCollectUnmarshalError(t *testing.T) {
 	}
 
 	collector := NewEthSyncing(rpc)
-	ch := make(chan prometheus.Metric, 1)
+	ch := make(chan prometheus.Metric, 3)
 
 	collector.Collect(ch)
 	close(ch)
 
-	if got := len(ch); got != 1 {
-		t.Fatalf("got %v, want 1", got)
+	if got := len(ch); got != 3 {
+		t.Fatalf("got %v, want 3", got)
 	}
 
 	var metric dto.Metric
@@ -145,6 +145,20 @@ func TestEthSyncingCollect(t *testing.T) {
 	if err := result.Write(&metric); err != nil {
 		t.Fatalf("expected metric, got %#v", err)
 	}
+	if got := len(metric.Label); got > 0 {
+		t.Fatalf("expected 0 labels, got %d", got)
+	}
+	if got := *metric.Gauge.Value; got != 900 {
+		t.Fatalf("got %v, want 900", got)
+	}
+
+	result = <-ch
+	if err := result.Write(&metric); err != nil {
+		t.Fatalf("expected metric, got %#v", err)
+	}
+	if got := len(metric.Label); got > 0 {
+		t.Fatalf("expected 0 labels, got %d", got)
+	}
 	if got := *metric.Gauge.Value; got != 902 {
 		t.Fatalf("got %v, want 902", got)
 	}
@@ -153,15 +167,10 @@ func TestEthSyncingCollect(t *testing.T) {
 	if err := result.Write(&metric); err != nil {
 		t.Fatalf("expected metric, got %#v", err)
 	}
+	if got := len(metric.Label); got > 0 {
+		t.Fatalf("expected 0 labels, got %d", got)
+	}
 	if got := *metric.Gauge.Value; got != 1108 {
 		t.Fatalf("got %v, want 1108", got)
-	}
-
-	result = <-ch
-	if err := result.Write(&metric); err != nil {
-		t.Fatalf("expected metric, got %#v", err)
-	}
-	if got := *metric.Gauge.Value; got != 900 {
-		t.Fatalf("got %v, want 900", got)
 	}
 }

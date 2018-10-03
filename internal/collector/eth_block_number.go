@@ -35,5 +35,5 @@ func (collector *EthBlockNumber) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	value := float64(result)
-	ch <- prometheus.MustNewConstMetric(collector.desc, prometheus.CounterValue, value)
+	ch <- prometheus.MustNewConstMetric(collector.desc, prometheus.GaugeValue, value)
 }

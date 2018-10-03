@@ -15,7 +15,7 @@ func NewNetPeerCount(rpc *rpc.Client) *NetPeerCount {
 	return &NetPeerCount{
 		rpc: rpc,
 		desc: prometheus.NewDesc(
-			"net_peer_count",
+			"net_peers",
 			"the number of peers currently connected to the client",
 			nil,
 			nil,
