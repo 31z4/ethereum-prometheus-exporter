@@ -29,7 +29,7 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 
 | Name | Description | Labels |
 | ---- | ----------- | ------ |
-| net_peer_count | The number of peers currently connected to the client. | |
+| net_peers | The number of peers currently connected to the client. | |
 | eth_block_number | The number of most recent block. | |
 | eth_gas_price | The current price per gas in wei. *Might be inaccurate*. | |
 | eth_block_transactions | The number of transactions in a block. | tag |
