@@ -10,8 +10,10 @@ import (
 )
 
 type EthSyncing struct {
-	rpc  *rpc.Client
-	desc *prometheus.Desc
+	rpc          *rpc.Client
+	startingDesc *prometheus.Desc
+	currentDesc  *prometheus.Desc
+	highestDesc  *prometheus.Desc
 }
 
 type syncingResult struct {
@@ -23,42 +25,63 @@ type syncingResult struct {
 func NewEthSyncing(rpc *rpc.Client) *EthSyncing {
 	return &EthSyncing{
 		rpc: rpc,
-		desc: prometheus.NewDesc(
-			"eth_syncing",
-			"data about the sync status",
-			[]string{"block"},
+		startingDesc: prometheus.NewDesc(
+			"eth_sync_starting",
+			"the block at which the import started",
+			nil,
+			nil,
+		),
+		currentDesc: prometheus.NewDesc(
+			"eth_sync_current",
+			"the number of most recent block",
+			nil,
+			nil,
+		),
+		highestDesc: prometheus.NewDesc(
+			"eth_sync_highest",
+			"the estimated highest block",
+			nil,
 			nil,
 		),
 	}
 }
 
 func (collector *EthSyncing) Describe(ch chan<- *prometheus.Desc) {
-	ch <- collector.desc
+	ch <- collector.startingDesc
+	ch <- collector.currentDesc
+	ch <- collector.highestDesc
 }
 
 func (collector *EthSyncing) Collect(ch chan<- prometheus.Metric) {
 	var raw json.RawMessage
 	if err := collector.rpc.Call(&raw, "eth_syncing"); err != nil {
-		ch <- prometheus.NewInvalidMetric(collector.desc, err)
+		ch <- prometheus.NewInvalidMetric(collector.startingDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.currentDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.highestDesc, err)
 		return
 	}
 
 	var syncing bool
 	if err := json.Unmarshal(raw, &syncing); err == nil {
-		ch <- prometheus.NewInvalidMetric(collector.desc, errors.New("not syncing"))
+		err = errors.New("not syncing")
+		ch <- prometheus.NewInvalidMetric(collector.startingDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.currentDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.highestDesc, err)
 		return
 	}
 
 	var result *syncingResult
 	if err := json.Unmarshal(raw, &result); err != nil {
-		ch <- prometheus.NewInvalidMetric(collector.desc, err)
+		ch <- prometheus.NewInvalidMetric(collector.startingDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.currentDesc, err)
+		ch <- prometheus.NewInvalidMetric(collector.highestDesc, err)
 		return
 	}
 
-	value := float64(result.CurrentBlock)
-	ch <- prometheus.MustNewConstMetric(collector.desc, prometheus.GaugeValue, value, "current")
+	value := float64(result.StartingBlock)
+	ch <- prometheus.MustNewConstMetric(collector.startingDesc, prometheus.GaugeValue, value)
+	value = float64(result.CurrentBlock)
+	ch <- prometheus.MustNewConstMetric(collector.currentDesc, prometheus.GaugeValue, value)
 	value = float64(result.HighestBlock)
-	ch <- prometheus.MustNewConstMetric(collector.desc, prometheus.GaugeValue, value, "highest")
-	value = float64(result.StartingBlock)
-	ch <- prometheus.MustNewConstMetric(collector.desc, prometheus.GaugeValue, value, "starting")
+	ch <- prometheus.MustNewConstMetric(collector.highestDesc, prometheus.GaugeValue, value)
 }

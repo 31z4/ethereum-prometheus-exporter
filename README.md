@@ -36,7 +36,9 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 | eth_latest_block_transactions | The number of transactions in a latest block. | |
 | eth_pending_block_transactions | The number of transactions in a pending block. | |
 | eth_hashrate | The number of hashes per second that the node is mining with. | |
-| eth_syncing | Data about the sync status. | block |
+| eth_sync_starting | The block at which the import started. | |
+| eth_sync_current | The number of most recent block. | |
+| eth_sync_highest | The estimated highest block. | |
 | parity_net_peers | The number of peers currently connected to the client. *Available only for Parity*. | status |
 
 ## Development
