@@ -34,7 +34,7 @@ func NewEthBlockTransactionCount(rpc *rpc.Client) *EthBlockTransactionCount {
 	return &EthBlockTransactionCount{
 		rpc: rpc,
 		desc: prometheus.NewDesc(
-			"eth_block_transaction_count",
+			"eth_block_transactions",
 			"the number of transactions in a block",
 			[]string{"tag"},
 			nil,
