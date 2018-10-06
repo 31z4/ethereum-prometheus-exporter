@@ -11,20 +11,20 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthBlockTransactionCountCollectError(t *testing.T) {
+func TestEthLatestBlockTransactionsCollectError(t *testing.T) {
 	rpc, err := rpc.DialHTTP("http://localhost")
 	if err != nil {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthBlockTransactionCount(rpc)
-	ch := make(chan prometheus.Metric, 3)
+	collector := NewEthLatestBlockTransactions(rpc)
+	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
 	close(ch)
 
-	if got := len(ch); got != 3 {
-		t.Fatalf("got %v, want 3", got)
+	if got := len(ch); got != 1 {
+		t.Fatalf("got %v, want 1", got)
 	}
 
 	var metric dto.Metric
@@ -39,7 +39,7 @@ func TestEthBlockTransactionCountCollectError(t *testing.T) {
 	}
 }
 
-func TestEthBlockTransactionCountCollect(t *testing.T) {
+func TestEthLatestBlockTransactionsCollect(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
 		if err != nil {
@@ -53,14 +53,14 @@ func TestEthBlockTransactionCountCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthBlockTransactionCount(rpc)
-	ch := make(chan prometheus.Metric, 3)
+	collector := NewEthLatestBlockTransactions(rpc)
+	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
 	close(ch)
 
-	if got := len(ch); got != 3 {
-		t.Fatalf("got %v, want 3", got)
+	if got := len(ch); got != 1 {
+		t.Fatalf("got %v, want 1", got)
 	}
 
 	var metric dto.Metric
