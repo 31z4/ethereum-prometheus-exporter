@@ -44,7 +44,7 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 
 ## Development
 
-[Go modules](https://golang.org/doc/go1.11#modules) is used for dependency management. Hence Go 1.11 is a minimum required version.
+[Go modules](https://github.com/golang/go/wiki/Modules) is used for dependency management. Hence Go 1.11 is a minimum required version.
 
 [CircleCI Local CLI](https://circleci.com/docs/2.0/local-cli/) can be used to ensure that everything builds locally.
 
