@@ -14,12 +14,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+var version = "undefined"
+
 func main() {
 	flag.Usage = func() {
 		const (
-			usage = "Usage: ethereum_exporter [options]\n\n" +
+			usage = "Usage: ethereum_exporter [option] [arg]\n\n" +
 				"Prometheus exporter for Ethereum client metrics\n\n" +
-				"Options:\n"
+				"Options and arguments:\n"
 		)
 
 		fmt.Fprint(flag.CommandLine.Output(), usage)
@@ -30,10 +32,16 @@ func main() {
 
 	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
 	addr := flag.String("addr", ":9368", "listen address")
+	ver := flag.Bool("v", false, "print version number and exit")
 
 	flag.Parse()
 	if len(flag.Args()) > 0 {
 		flag.Usage()
+	}
+
+	if *ver {
+		fmt.Println(version)
+		os.Exit(0)
 	}
 
 	rpc, err := rpc.Dial(*url)

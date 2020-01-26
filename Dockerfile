@@ -3,7 +3,9 @@ FROM golang:1.13 as builder
 WORKDIR /ethereum_exporter
 COPY . .
 
-RUN CGO_ENABLED=0 go build -ldflags '-s -w' github.com/31z4/ethereum-prometheus-exporter/cmd/ethereum_exporter
+ARG VERSION=undefined
+RUN CGO_ENABLED=0 \
+    go build -ldflags "-s -w -X main.version=$VERSION" github.com/31z4/ethereum-prometheus-exporter/cmd/ethereum_exporter
 
 FROM scratch
 
