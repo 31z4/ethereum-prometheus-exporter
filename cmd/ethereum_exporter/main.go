@@ -53,6 +53,7 @@ func main() {
 	registry.MustRegister(
 		collector.NewNetPeerCount(rpc),
 		collector.NewEthBlockNumber(rpc),
+		collector.NewEthBlockTimestamp(rpc),
 		collector.NewEthGasPrice(rpc),
 		collector.NewEthEarliestBlockTransactions(rpc),
 		collector.NewEthLatestBlockTransactions(rpc),
