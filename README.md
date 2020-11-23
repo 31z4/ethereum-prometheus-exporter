@@ -31,6 +31,7 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 | ---- | ----------- |
 | net_peers | The number of peers currently connected to the client. |
 | eth_block_number | The number of most recent block. |
+| eth_block_timestamp | The timestamp of most recent block. |
 | eth_gas_price | The current price per gas in wei. *Might be inaccurate*. |
 | eth_earliest_block_transactions | The number of transactions in an earliest block. |
 | eth_latest_block_transactions | The number of transactions in a latest block. |
