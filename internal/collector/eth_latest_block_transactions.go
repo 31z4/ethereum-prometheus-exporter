@@ -16,7 +16,7 @@ func NewEthLatestBlockTransactions(rpc *rpc.Client) *EthLatestBlockTransactions 
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_latest_block_transactions",
-			"the number of transactions in a latest block",
+			"number of transactions in the latest block",
 			nil,
 			nil,
 		),

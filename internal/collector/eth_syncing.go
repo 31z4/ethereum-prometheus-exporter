@@ -27,19 +27,19 @@ func NewEthSyncing(rpc *rpc.Client) *EthSyncing {
 		rpc: rpc,
 		startingDesc: prometheus.NewDesc(
 			"eth_sync_starting",
-			"the block at which the import started",
+			"block number at which current import started",
 			nil,
 			nil,
 		),
 		currentDesc: prometheus.NewDesc(
 			"eth_sync_current",
-			"the number of most recent block",
+			"number of most recent block",
 			nil,
 			nil,
 		),
 		highestDesc: prometheus.NewDesc(
 			"eth_sync_highest",
-			"the estimated highest block",
+			"estimated number of highest block",
 			nil,
 			nil,
 		),

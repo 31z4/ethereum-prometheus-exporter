@@ -18,7 +18,7 @@ func NewEthGasPrice(rpc *rpc.Client) *EthGasPrice {
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_gas_price",
-			"the current price per gas in wei",
+			"current gas price in wei",
 			nil,
 			nil,
 		),

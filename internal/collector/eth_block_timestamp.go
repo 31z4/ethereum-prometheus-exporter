@@ -20,7 +20,7 @@ func NewEthBlockTimestamp(rpc *rpc.Client) *EthBlockTimestamp {
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_block_timestamp",
-			"the timestamp of most recent block",
+			"timestamp of the most recent block",
 			nil,
 			nil,
 		),

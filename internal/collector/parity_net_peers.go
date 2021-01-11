@@ -21,13 +21,13 @@ func NewParityNetPeers(rpc *rpc.Client) *ParityNetPeers {
 		rpc: rpc,
 		activeDesc: prometheus.NewDesc(
 			"parity_net_active_peers",
-			"the number of active peers",
+			"number of active peers",
 			nil,
 			nil,
 		),
 		connectedDesc: prometheus.NewDesc(
 			"parity_net_connected_peers",
-			"the number of peers currently connected to the client",
+			"number of peers currently connected to this client",
 			nil,
 			nil,
 		),
