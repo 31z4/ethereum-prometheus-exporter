@@ -16,7 +16,7 @@ func NewEthBlockNumber(rpc *rpc.Client) *EthBlockNumber {
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_block_number",
-			"the number of most recent block",
+			"number of the most recent block",
 			nil,
 			nil,
 		),

@@ -16,7 +16,7 @@ func NewEthPendingBlockTransactions(rpc *rpc.Client) *EthPendingBlockTransaction
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_pending_block_transactions",
-			"the number of transactions in a pending block",
+			"the number of transactions in pending block",
 			nil,
 			nil,
 		),

@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/31z4/ethereum-prometheus-exporter/branch/master/graph/badge.svg)](https://codecov.io/gh/31z4/ethereum-prometheus-exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/31z4/ethereum-prometheus-exporter)](https://goreportcard.com/report/github.com/31z4/ethereum-prometheus-exporter)
 
-This service exports various metrics from Ethereum clients for consumption by [Prometheus](https://prometheus.io). It uses [JSON-RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) interface to collect the metrics. Any JSON-RPC 2.0 enabled client should be supported. Although, it was only tested with [Parity](https://wiki.parity.io/Parity-Ethereum).
+This service exports various metrics from Ethereum clients for consumption by [Prometheus](https://prometheus.io). It uses [JSON-RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) interface to collect the metrics. Any JSON-RPC 2.0 enabled client should be supported. Although, it has only been tested with [OpenEthereum](https://openethereum.github.io/).
 
 ## Usage
 
@@ -29,18 +29,19 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 
 | Name | Description |
 | ---- | ----------- |
-| net_peers | The number of peers currently connected to the client. |
-| eth_block_number | The number of most recent block. |
-| eth_gas_price | The current price per gas in wei. *Might be inaccurate*. |
-| eth_earliest_block_transactions | The number of transactions in an earliest block. |
-| eth_latest_block_transactions | The number of transactions in a latest block. |
-| eth_pending_block_transactions | The number of transactions in a pending block. |
-| eth_hashrate | The number of hashes per second that the node is mining with. |
-| eth_sync_starting | The block at which the import started. |
-| eth_sync_current | The number of most recent block. |
-| eth_sync_highest | The estimated highest block. |
-| parity_net_active_peers | The number of active peers. *Available only for Parity*. |
-| parity_net_connected_peers | The number of peers currently connected to the client. *Available only for Parity*. |
+| net_peers | Number of peers currently connected to the client. |
+| eth_block_number | Number of the most recent block. |
+| eth_block_timestamp | Timestamp of the most recent block. |
+| eth_gas_price | Current gas price in wei. *Might be inaccurate*. |
+| eth_earliest_block_transactions | Number of transactions in the earliest block. |
+| eth_latest_block_transactions | Number of transactions in the latest block. |
+| eth_pending_block_transactions | The number of transactions in pending block. |
+| eth_hashrate | Hashes per second that this node is mining with. |
+| eth_sync_starting | Block number at which current import started. |
+| eth_sync_current | Number of most recent block. |
+| eth_sync_highest | Estimated number of highest block. |
+| parity_net_active_peers | Number of active peers. *Available only for OpenEthereum*. |
+| parity_net_connected_peers | Number of peers currently connected to this client. *Available only for OpenEthereum*. |
 
 ## Development
 

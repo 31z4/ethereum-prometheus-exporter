@@ -16,7 +16,7 @@ func NewEthHashrate(rpc *rpc.Client) *EthHashrate {
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_hashrate",
-			"the number of hashes per second that the node is mining with",
+			"hashes per second that this node is mining with",
 			nil,
 			nil,
 		),
