@@ -5,6 +5,6 @@ linters:
   - errcheck
   - megacheck
   - ineffassign
-  - golint
+  - revive
   - goimports
   - misspell
