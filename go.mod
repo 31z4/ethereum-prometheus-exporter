@@ -3,7 +3,7 @@ module github.com/31z4/ethereum-prometheus-exporter
 require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/ethereum/go-ethereum v1.10.6
+	github.com/ethereum/go-ethereum v1.10.8
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/prometheus/client_golang v1.11.0
