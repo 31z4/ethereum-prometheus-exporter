@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  ethereum_exporter:
+    container_name: ethereum_exporter
+    image: "31z4/ethereum-prometheus-exporter:v1.2.1"
+    command: "-url http://ethereum:8545"
+    ports:
+      - "9368:9368"
