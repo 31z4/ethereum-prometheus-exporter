@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  exporter:
+    build: .
+    entrypoint: 
+      - ./ethereum_exporter
+      - -url=${JSON_RPC_BLOCKCHAIN_URL}
+    ports: 
+    - "9368"
+  agent:
+    image: grafana/agent:latest
+    volumes:
+      - ./production/agent:/etc/agent-config
+    entrypoint:
+      - /bin/agent
+      - -config.file=/etc/agent-config/agent.yaml
+      - -enable-features=integrations-next
+      - -config.expand-env
+      - -config.enable-read-api
+    environment:
+      PROM_REMOTE_WRITE_URL: ${PROM_REMOTE_WRITE_URL}
+      PROM_GCOM_USER_ID: ${PROM_GCOM_USER_ID}
+      PROM_GCOM_API_KEY: ${PROM_GCOM_API_KEY}

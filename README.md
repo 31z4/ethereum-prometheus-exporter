@@ -53,6 +53,25 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
     circleci build --job test
     circleci build --job build
 
+## Local setup with Grafana Agent
+A local setup has been created to run locally the exporter, with a Grafana Agent instance scraping metrics from it, and pushing them to Grafana Cloud.
+
+**Pre-requisites**
+- Docker installed
+- Corroborate docker compose is installed with `docker-compose --version`
+
+**Steps**
+1. Go to the root directory of the repo.
+2. Create a file called `.env`, configuring the following:
+```
+JSON_RPC_BLOCKCHAIN_URL=<URL to the blockchain one wants to observe. Must be a valid Eth JSON RPC implementor>
+PROM_REMOTE_WRITE_URL=<Grafana Cloud prometheus remote write URL>
+PROM_GCOM_USER_ID=<Prometheus instance id>
+PROM_GCOM_API_KEY=<Grafana Cloud API Key with MetricsPublisher role>
+```
+
+3. Run: `docker-compose up -d`
+
 ## Contributing
 
 Contributions are greatly appreciated. The project follows the typical GitHub pull request model. Before starting any work, please either comment on an existing issue or file a new one.
