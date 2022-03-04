@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  exporter:
+    build: .
+    ports: 
+    - "9368"
+  agent:
+    image: grafana/agent:latest
+    volumes:
+      - ./agent/config:/etc/agent-config
+    entrypoint:
+      - /bin/agent
+      - -config.file=/etc/agent-config/agent.yaml
+      - -enable-features=integrations-next
+      - -config.expand-env
+      - -config.enable-read-api
+  
