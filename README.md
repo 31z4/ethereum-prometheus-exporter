@@ -64,6 +64,7 @@ A local setup has been created to run locally the exporter, with a Grafana Agent
 1. Go to the root directory of the repo.
 2. Create a file called `.env`, configuring the following:
 ```
+JSON_RPC_BLOCKCHAIN_URL=<URL to the blockchain one wants to observe. Must be a valid Eth JSON RPC implementor>
 PROM_REMOTE_WRITE_URL=<Grafana Cloud prometheus remote write URL>
 PROM_GCOM_USER_ID=<Prometheus instance id>
 PROM_GCOM_API_KEY=<Grafana Cloud API Key with MetricsPublisher role>
