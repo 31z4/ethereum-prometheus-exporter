@@ -2,16 +2,23 @@ version: "3.9"
 services:
   exporter:
     build: .
+    entrypoint: 
+      - ./ethereum_exporter
+      - -url=https://dai.poa.network/
     ports: 
     - "9368"
   agent:
     image: grafana/agent:latest
     volumes:
-      - ./agent/config:/etc/agent-config
+      - ./production/agent:/etc/agent-config
     entrypoint:
       - /bin/agent
       - -config.file=/etc/agent-config/agent.yaml
       - -enable-features=integrations-next
       - -config.expand-env
       - -config.enable-read-api
+    environment:
+      PROM_REMOTE_WRITE_URL: https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push
+      PROM_GCOM_USER_ID: 304472
+      PROM_GCOM_API_KEY: eyJrIjoiNTc4NjU1ZWJmMWYwNTI4ZGY3Nzk0MjJmZDc3ZDYwNTUzYzM2MzkyNiIsIm4iOiJBZ2VudC1FdGhFeHBvcnRlciIsImlkIjo1ODg1MDV9
   
