@@ -6,7 +6,7 @@ services:
       - ./ethereum_exporter
       - -url=${JSON_RPC_BLOCKCHAIN_URL}
     ports: 
-    - "9368"
+    - "9368:9368"
   agent:
     image: grafana/agent:latest
     volumes:
