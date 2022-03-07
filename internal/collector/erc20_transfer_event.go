@@ -21,26 +21,30 @@ type PagedContractFilterer interface {
 }
 
 type ERC20TransferEvent struct {
-	client           *token.TokenFilterer
+	contractClients  map[string]*token.TokenFilterer
 	desc             *prometheus.Desc
 	collectMutex     sync.Mutex
 	lastQueriedBlock uint64
 	bnGetter         BlockNumberGetter
 }
 
-func NewERC20TransferEvent(client PagedContractFilterer, contractAddress common.Address, nowBlockNumber uint64) (*ERC20TransferEvent, error) {
-	filterer, err := token.NewTokenFilterer(contractAddress, client)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create ERC20 transfer evt collector")
+func NewERC20TransferEvent(client PagedContractFilterer, contractAddresses []common.Address, nowBlockNumber uint64) (*ERC20TransferEvent, error) {
+	clients := map[string]*token.TokenFilterer{}
+	for _, contractAddress := range contractAddresses {
+		filterer, err := token.NewTokenFilterer(contractAddress, client)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create ERC20 transfer evt collector")
+		}
+		clients[contractAddress.Hex()] = filterer
 	}
 
 	return &ERC20TransferEvent{
-		client: filterer,
+		contractClients: clients,
 		desc: prometheus.NewDesc(
 			"erc20_transfer_event",
 			"ERC20 Transfer events count",
+			[]string{"contract"},
 			nil,
-			prometheus.Labels{"contract": contractAddress.Hex()},
 		),
 		lastQueriedBlock: nowBlockNumber,
 		bnGetter:         client,
@@ -51,26 +55,14 @@ func (col *ERC20TransferEvent) Describe(ch chan<- *prometheus.Desc) {
 	ch <- col.desc
 }
 
-func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
-	col.collectMutex.Lock()
-	defer col.collectMutex.Unlock()
-
-	currentBlockNum, err := col.bnGetter.BlockNumber(context.Background())
-	if err != nil {
-		wErr := errors.Wrap(err, "failed to get current block number")
-		ch <- prometheus.NewInvalidMetric(col.desc, wErr)
-		return
-	}
-
-	// INV: currentBlockNum >= lastQueriedblock
-
-	it, err := col.client.FilterTransfer(&bind.FilterOpts{
+func (col *ERC20TransferEvent) doCollect(ch chan<- prometheus.Metric, currentBlockNumber uint64, contract string, client *token.TokenFilterer) {
+	it, err := client.FilterTransfer(&bind.FilterOpts{
 		Context: context.Background(),
 		Start:   col.lastQueriedBlock,
-		End:     &currentBlockNum,
+		End:     &currentBlockNumber,
 	}, nil, nil)
 	if err != nil {
-		wErr := errors.Wrap(err, "failed to create transfer iterator")
+		wErr := errors.Wrapf(err, "failed to create transfer iterator for contract=[%s]", contract)
 		ch <- prometheus.NewInvalidMetric(col.desc, wErr)
 		return
 	}
@@ -83,12 +75,10 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 		eventsLeft := it.Next()
 		if !eventsLeft && it.Error() == nil {
 			// Finished reading events, advance lastQueriedBlock and publish histogram data
-			ch <- prometheus.MustNewConstHistogram(col.desc, count, sum, nil)
-
-			col.lastQueriedBlock = currentBlockNum
+			ch <- prometheus.MustNewConstHistogram(col.desc, count, sum, nil, contract)
 			return
 		} else if !eventsLeft {
-			wErr := errors.Wrap(err, "failed to read transfer event")
+			wErr := errors.Wrapf(err, "failed to read transfer event for contract=[%s]", contract)
 			ch <- prometheus.NewInvalidMetric(col.desc, wErr)
 			return
 		}
@@ -98,4 +88,33 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 		count += 1
 		sum += value
 	}
+
+}
+
+func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
+	col.collectMutex.Lock()
+	defer col.collectMutex.Unlock()
+
+	currentBlockNumber, err := col.bnGetter.BlockNumber(context.Background())
+	if err != nil {
+		wErr := errors.Wrap(err, "failed to get current block number")
+		ch <- prometheus.NewInvalidMetric(col.desc, wErr)
+		return
+	}
+	// INV: currentBlockNum >= lastQueriedblock
+
+	wg := sync.WaitGroup{}
+	for contract, client := range col.contractClients {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			col.doCollect(ch, currentBlockNumber, contract, client)
+		}()
+	}
+
+	wg.Wait()
+
+	// Improve error model, this will advance last seen block even if some client fails
+	col.lastQueriedBlock = currentBlockNumber
 }
