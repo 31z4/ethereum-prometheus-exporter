@@ -39,7 +39,7 @@ func NewERC20TransferEvent(client PagedContractFilterer, contractAddress common.
 		desc: prometheus.NewDesc(
 			"erc20_transfer_event",
 			"ERC20 Transfer events count",
-			[]string{"from", "to"},
+			nil,
 			prometheus.Labels{"contract": contractAddress.Hex()},
 		),
 		lastQueriedBlock: nowBlockNumber,
@@ -75,10 +75,16 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	// histogram summary to collect
+	var count uint64 = 0
+	var sum float64 = 0
+
 	for {
 		eventsLeft := it.Next()
 		if !eventsLeft && it.Error() == nil {
-			// Finished reading events, advance lastQueriedBlock
+			// Finished reading events, advance lastQueriedBlock and publish histogram data
+			ch <- prometheus.MustNewConstHistogram(col.desc, count, sum, nil)
+
 			col.lastQueriedBlock = currentBlockNum
 			return
 		} else if !eventsLeft {
@@ -87,8 +93,9 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 			return
 		}
 		te := it.Event
+
 		value, _ := new(big.Float).SetInt(te.Tokens).Float64()
-		ch <- prometheus.MustNewConstHistogram(col.desc, prometheus.GaugeValue, value, te.From.Hex(), te.To.Hex())
-		// FIXME: Maybe I should read all events, and then advance lastQueriedBlock, to avoid re-reading events
+		count += 1
+		sum += value
 	}
 }
