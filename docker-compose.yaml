@@ -5,7 +5,7 @@ services:
     entrypoint: 
       - ./ethereum_exporter
       - -url=${JSON_RPC_BLOCKCHAIN_URL}
-      - -erc20.contractAddress=${ERC20_CONTRACT_ADDRESS}
+      - -erc20ContractAddresses=${ERC20_CONTRACT_ADDRESSES}
     ports:
     - "9368:9368"
   agent:
