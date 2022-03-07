@@ -34,10 +34,10 @@ func main() {
 	}
 
 	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
-	addr := flag.String("addr", ":9368", "listen address")
-	ver := flag.Bool("v", false, "print version number and exit")
 	erc20ContractAddress := flag.String("erc20.contractAddress", "", "ERC20 Contract Address to listen for events")
 	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
+	addr := flag.String("addr", ":9368", "listen address")
+	ver := flag.Bool("v", false, "print version number and exit")
 	walletAddress := flag.String("address.checkBalance", "", "Wallet address to check balance")
 
 	flag.Parse()
