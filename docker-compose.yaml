@@ -5,7 +5,8 @@ services:
     entrypoint: 
       - ./ethereum_exporter
       - -url=${JSON_RPC_BLOCKCHAIN_URL}
-    ports: 
+      - -erc20.contractAddress=${ERC20_CONTRACT_ADDRESS}
+    ports:
     - "9368:9368"
   agent:
     image: grafana/agent:latest

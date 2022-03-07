@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"log"
 	"net/http"
 	"os"
@@ -31,6 +34,8 @@ func main() {
 	}
 
 	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
+	erc20ContractAddress := flag.String("erc20.contractAddress", "", "ERC20 Contract Address to listen for events")
+	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
 	addr := flag.String("addr", ":9368", "listen address")
 	ver := flag.Bool("v", false, "print version number and exit")
 
@@ -44,9 +49,30 @@ func main() {
 		os.Exit(0)
 	}
 
+	erc20Address := common.HexToAddress(*erc20ContractAddress)
+
 	rpc, err := rpc.Dial(*url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create RPC client: %v", err)
+	}
+
+	client, err := ethclient.Dial(*url)
+	if err != nil {
+		log.Fatalf("failed to create ETH client: %v", err)
+	}
+
+	if startBlockNumber == nil {
+		lastBlock, err := client.BlockNumber(context.Background())
+		if err != nil {
+			log.Fatalf("failed to get last block number: %v", err)
+		}
+		log.Printf("last block number: %d\n", lastBlock)
+		*startBlockNumber = lastBlock
+	}
+
+	coll, err := collector.NewERC20TransferEvent(client, erc20Address, *startBlockNumber)
+	if err != nil {
+		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
 
 	registry := prometheus.NewPedanticRegistry()
@@ -61,6 +87,7 @@ func main() {
 		collector.NewEthHashrate(rpc),
 		collector.NewEthSyncing(rpc),
 		collector.NewParityNetPeers(rpc),
+		coll,
 	)
 
 	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{
