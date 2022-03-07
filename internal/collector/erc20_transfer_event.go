@@ -11,21 +11,31 @@ import (
 	"sync"
 )
 
+type BlockNumberGetter interface {
+	BlockNumber(ctx context.Context) (uint64, error)
+}
+
+type PagedContractFilterer interface {
+	BlockNumberGetter
+	bind.ContractFilterer
+}
+
 type ERC20TransferEvent struct {
-	filterer         *token.TokenFilterer
+	client           *token.TokenFilterer
 	desc             *prometheus.Desc
 	collectMutex     sync.Mutex
 	lastQueriedBlock uint64
+	bnGetter         BlockNumberGetter
 }
 
-func NewERC20TransferEvent(client bind.ContractFilterer, contractAddress common.Address, nowBlockNumber uint64) (*ERC20TransferEvent, error) {
+func NewERC20TransferEvent(client PagedContractFilterer, contractAddress common.Address, nowBlockNumber uint64) (*ERC20TransferEvent, error) {
 	filterer, err := token.NewTokenFilterer(contractAddress, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create ERC20 transfer evt collector")
 	}
 
 	return &ERC20TransferEvent{
-		filterer: filterer,
+		client: filterer,
 		desc: prometheus.NewDesc(
 			"erc20_transfer_event",
 			"ERC20 Transfer events count",
@@ -33,6 +43,7 @@ func NewERC20TransferEvent(client bind.ContractFilterer, contractAddress common.
 			prometheus.Labels{"contract": contractAddress.Hex()},
 		),
 		lastQueriedBlock: nowBlockNumber,
+		bnGetter:         client,
 	}, nil
 }
 
@@ -44,9 +55,19 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 	col.collectMutex.Lock()
 	defer col.collectMutex.Unlock()
 
-	it, err := col.filterer.FilterTransfer(&bind.FilterOpts{
+	currentBlockNum, err := col.bnGetter.BlockNumber(context.Background())
+	if err != nil {
+		wErr := errors.Wrap(err, "failed to get current block number")
+		ch <- prometheus.NewInvalidMetric(col.desc, wErr)
+		return
+	}
+
+	// INV: currentBlockNum >= lastQueriedblock
+
+	it, err := col.client.FilterTransfer(&bind.FilterOpts{
 		Context: context.Background(),
 		Start:   col.lastQueriedBlock,
+		End:     &currentBlockNum,
 	}, nil, nil)
 	if err != nil {
 		wErr := errors.Wrap(err, "failed to create transfer iterator")
@@ -55,17 +76,19 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for {
-		ok := it.Next()
-		if !ok && it.Error() == nil {
-			// Finished reading events
+		eventsLeft := it.Next()
+		if !eventsLeft && it.Error() == nil {
+			// Finished reading events, advance lastQueriedBlock
+			col.lastQueriedBlock = currentBlockNum
 			return
-		} else if !ok {
+		} else if !eventsLeft {
 			wErr := errors.Wrap(err, "failed to read transfer event")
 			ch <- prometheus.NewInvalidMetric(col.desc, wErr)
 			return
 		}
 		te := it.Event
 		value, _ := new(big.Float).SetInt(te.Tokens).Float64()
-		ch <- prometheus.MustNewConstMetric(col.desc, prometheus.CounterValue, value, te.From.Hex(), te.To.Hex())
+		ch <- prometheus.MustNewConstHistogram(col.desc, prometheus.GaugeValue, value, te.From.Hex(), te.To.Hex())
+		// FIXME: Maybe I should read all events, and then advance lastQueriedBlock, to avoid re-reading events
 	}
 }
