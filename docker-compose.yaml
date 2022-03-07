@@ -6,8 +6,7 @@ services:
       - ./ethereum_exporter
       - -url=${JSON_RPC_BLOCKCHAIN_URL}
       - -erc20.contractAddress=${ERC20_CONTRACT_ADDRESS}
-      - -startBlockNumber=${ETH_START_BLOCK_NUMBER}
-    ports: 
+    ports:
     - "9368:9368"
   agent:
     image: grafana/agent:latest
