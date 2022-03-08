@@ -1,0 +1,14 @@
+general:
+  eth_provider_url:
+  server_url: localhost:9368
+  start_block_number: 0
+targets:
+  erc20:
+    - name: "binance coin"
+      contract: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52
+    - name: "the sandbox"
+      contract: 0x3845badAde8e6dFF049820680d1F14bD3903a5d0
+    - name: "tether usd"
+      contract: 0xdAC17F958D2ee523a2206206994597C13D831ec7
+  wallet:
+    address:

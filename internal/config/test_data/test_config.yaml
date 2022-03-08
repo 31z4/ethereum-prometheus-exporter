@@ -1,0 +1,12 @@
+general:
+  eth_provider_url: "abc"
+  server_url: "qwe"
+  start_block_number: 123
+targets:
+  erc20:
+  - name: "usdt falopa"
+    contract: "0x123123"
+  - name: "usdt falopa 2"
+    contract: "0x123124"
+  wallet:
+    address: "0x123"
