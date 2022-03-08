@@ -34,10 +34,11 @@ func main() {
 	}
 
 	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
-	erc20ContractAddress := flag.String("erc20.contractAddress", "", "ERC20 Contract Address to listen for events")
-	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
 	addr := flag.String("addr", ":9368", "listen address")
 	ver := flag.Bool("v", false, "print version number and exit")
+	erc20ContractAddress := flag.String("erc20.contractAddress", "", "ERC20 Contract Address to listen for events")
+	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
+	walletAddress := flag.String("address.checkBalance", "", "Wallet address to check balance")
 
 	flag.Parse()
 	if len(flag.Args()) > 0 {
@@ -55,6 +56,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create RPC client: %v", err)
 	}
+
+	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, *walletAddress)
 
 	client, err := ethclient.Dial(*url)
 	if err != nil {
@@ -88,6 +91,7 @@ func main() {
 		collector.NewEthSyncing(rpc),
 		collector.NewParityNetPeers(rpc),
 		coll,
+		collectorGetAddressBalance,
 	)
 
 	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{
