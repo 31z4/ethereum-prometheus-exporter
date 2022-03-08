@@ -2,15 +2,16 @@ package collector
 
 import (
 	"context"
+	"log"
+	"math"
+	"math/big"
+	"sync"
+
 	"github.com/31z4/ethereum-prometheus-exporter/token"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
-	"log"
-	"math"
-	"math/big"
-	"sync"
 )
 
 type BlockNumberGetter interface {
@@ -142,10 +143,10 @@ func (col *ERC20TransferEvent) Collect(ch chan<- prometheus.Metric) {
 	for contrInfo, client := range col.contractClients {
 		wg.Add(1)
 
-		go func() {
+		go func(contrInfo *contractInfo, client *token.TokenFilterer) {
 			defer wg.Done()
 			col.doCollect(ch, currentBlockNumber, contrInfo, client)
-		}()
+		}(contrInfo, client)
 	}
 
 	wg.Wait()
