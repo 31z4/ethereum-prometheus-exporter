@@ -15,14 +15,14 @@ type blockResult struct {
 	Timestamp hexutil.Uint64
 }
 
-func NewEthBlockTimestamp(rpc *rpc.Client) *EthBlockTimestamp {
+func NewEthBlockTimestamp(rpc *rpc.Client, label string) *EthBlockTimestamp {
 	return &EthBlockTimestamp{
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_block_timestamp",
 			"timestamp of the most recent block",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 	}
 }

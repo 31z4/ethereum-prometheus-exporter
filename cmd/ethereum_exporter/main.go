@@ -84,20 +84,20 @@ func main() {
 	}
 
 	// Wallet  Target
-	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, cfg.Target.Wallet.Addr)
+	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, cfg.Target.Wallet)
 
 	registry := prometheus.NewPedanticRegistry()
 	registry.MustRegister(
-		collector.NewNetPeerCount(rpc),
-		collector.NewEthBlockNumber(rpc),
-		collector.NewEthBlockTimestamp(rpc),
-		collector.NewEthGasPrice(rpc),
-		collector.NewEthEarliestBlockTransactions(rpc),
-		collector.NewEthLatestBlockTransactions(rpc),
-		collector.NewEthPendingBlockTransactions(rpc),
-		collector.NewEthHashrate(rpc),
-		collector.NewEthSyncing(rpc),
-		collector.NewParityNetPeers(rpc),
+		collector.NewNetPeerCount(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthBlockNumber(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthBlockTimestamp(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthGasPrice(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthEarliestBlockTransactions(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthLatestBlockTransactions(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthPendingBlockTransactions(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthHashrate(rpc, cfg.General.EthBlockchainName),
+		collector.NewEthSyncing(rpc, cfg.General.EthBlockchainName),
+		collector.NewParityNetPeers(rpc, cfg.General.EthBlockchainName),
 		coll,
 		collectorGetAddressBalance,
 	)

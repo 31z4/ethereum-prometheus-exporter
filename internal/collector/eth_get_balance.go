@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"github.com/31z4/ethereum-prometheus-exporter/internal/config"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -14,15 +15,15 @@ type EthGetBalance struct {
 	desc    *prometheus.Desc
 }
 
-func NewEthGetBalance(rpc *rpc.Client, address string) *EthGetBalance {
+func NewEthGetBalance(rpc *rpc.Client, wallet config.WalletTarget) *EthGetBalance {
 	return &EthGetBalance{
 		rpc:     rpc,
-		address: common.HexToAddress(address),
+		address: common.HexToAddress(wallet.Addr),
 		desc: prometheus.NewDesc(
 			"eth_get_balance",
 			"get balance",
 			nil,
-			nil,
+			map[string]string{"wallet_name": wallet.Name},
 		),
 	}
 }

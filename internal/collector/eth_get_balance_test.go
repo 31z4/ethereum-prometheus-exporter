@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"github.com/31z4/ethereum-prometheus-exporter/internal/config"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,12 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
-)
-
-const (
-	mockWalletAddress = "0x1234567890abcdef1234567890abcdef12345678"
-	mockResult        = "0x17b6d1ef1dff6b88"
-	expectedValue     = 1708783933564349320
 )
 
 func TestEthGetBalance(t *testing.T) {
@@ -31,7 +26,7 @@ func TestEthGetBalance(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthGetBalance(rpc, mockWalletAddress)
+	collector := NewEthGetBalance(rpc, config.WalletTarget{Addr: mockWalletAddress, Name: mockWalletName})
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -46,8 +41,8 @@ func TestEthGetBalance(t *testing.T) {
 		if err := result.Write(&metric); err != nil {
 			t.Fatalf("expected metric, got %#v", err)
 		}
-		if got := len(metric.Label); got > 0 {
-			t.Fatalf("expected 0 labels, got %d", got)
+		if got := len(metric.Label); got != 1 {
+			t.Fatalf("expected 1 label, got %d", got)
 		}
 		if got := *metric.Gauge.Value; got != expectedValue {
 			t.Fatalf("got %v, want %d", got, expectedValue)

@@ -17,20 +17,20 @@ type peersResult struct {
 	Connected uint64
 }
 
-func NewParityNetPeers(rpc *rpc.Client) *ParityNetPeers {
+func NewParityNetPeers(rpc *rpc.Client, label string) *ParityNetPeers {
 	return &ParityNetPeers{
 		rpc: rpc,
 		activeDesc: prometheus.NewDesc(
 			"parity_net_active_peers",
 			"number of active peers",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 		connectedDesc: prometheus.NewDesc(
 			"parity_net_connected_peers",
 			"number of peers currently connected to this client",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 	}
 }

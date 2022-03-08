@@ -17,7 +17,7 @@ func TestParityNetPeersCollectError(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewParityNetPeers(rpc)
+	collector := NewParityNetPeers(rpc, blockchainName)
 	ch := make(chan prometheus.Metric, 2)
 
 	collector.Collect(ch)
@@ -53,7 +53,7 @@ func TestParityNetPeersCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewParityNetPeers(rpc)
+	collector := NewParityNetPeers(rpc, blockchainName)
 	ch := make(chan prometheus.Metric, 2)
 
 	collector.Collect(ch)
@@ -72,8 +72,8 @@ func TestParityNetPeersCollect(t *testing.T) {
 	if err := result.Write(&metric); err != nil {
 		t.Fatalf("expected metric, got %#v", err)
 	}
-	if got := len(metric.Label); got > 0 {
-		t.Fatalf("expected 0 labels, got %d", got)
+	if got := len(metric.Label); got != 1 {
+		t.Fatalf("expected 1 label, got %d", got)
 	}
 	if got := *metric.Gauge.Value; got != 1 {
 		t.Fatalf("got %v, want 1", got)
@@ -83,8 +83,8 @@ func TestParityNetPeersCollect(t *testing.T) {
 	if err := result.Write(&metric); err != nil {
 		t.Fatalf("expected metric, got %#v", err)
 	}
-	if got := len(metric.Label); got > 0 {
-		t.Fatalf("expected 0 labels, got %d", got)
+	if got := len(metric.Label); got != 1 {
+		t.Fatalf("expected 1 label, got %d", got)
 	}
 	if got := *metric.Gauge.Value; got != 25 {
 		t.Fatalf("got %v, want 25", got)

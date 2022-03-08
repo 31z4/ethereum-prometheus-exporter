@@ -11,6 +11,7 @@ func TestParseConfigFromFileIsSuccessful(t *testing.T) {
 
 	// General
 	assert.Equal(t, "abc", config.General.EthProviderURL)
+	assert.Equal(t, "some blockchain name", config.General.EthBlockchainName)
 	assert.Equal(t, "qwe", config.General.ServerURL)
 	assert.Equal(t, uint64(123), config.General.StartBlockNumber)
 	// Targets - ERC-20
@@ -21,6 +22,7 @@ func TestParseConfigFromFileIsSuccessful(t *testing.T) {
 	assert.Equal(t, "0x123124", config.Target.ERC20[1].ContractAddr)
 	// Targets - Wallet
 	assert.Equal(t, "0x123", config.Target.Wallet.Addr)
+	assert.Equal(t, "wallet 1", config.Target.Wallet.Name)
 }
 
 func TestParseConfigFromFileFailsWithNonExistentFile(t *testing.T) {

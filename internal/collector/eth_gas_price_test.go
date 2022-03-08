@@ -17,7 +17,7 @@ func TestEthGasPriceCollectError(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthGasPrice(rpc)
+	collector := NewEthGasPrice(rpc, blockchainName)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -53,7 +53,7 @@ func TestEthGasPriceCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthGasPrice(rpc)
+	collector := NewEthGasPrice(rpc, blockchainName)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -68,8 +68,8 @@ func TestEthGasPriceCollect(t *testing.T) {
 		if err := result.Write(&metric); err != nil {
 			t.Fatalf("expected metric, got %#v", err)
 		}
-		if got := len(metric.Label); got > 0 {
-			t.Fatalf("expected 0 labels, got %d", got)
+		if got := len(metric.Label); got != 1 {
+			t.Fatalf("expected 1 label, got %d", got)
 		}
 		if got := *metric.Gauge.Value; got != 10000000000000 {
 			t.Fatalf("got %v, want 10000000000000", got)
