@@ -10,11 +10,10 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var version = "undefined"
