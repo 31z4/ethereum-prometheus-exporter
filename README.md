@@ -62,15 +62,15 @@ A local setup has been created to run locally the exporter, with a Grafana Agent
 
 **Steps**
 1. Go to the root directory of the repo.
-2. Create a file called `.env`, configuring the following:
+2. Create an exporter config file inside the `production/exporter` folder. You can use `sample.yaml` as template.
+3. Create a file called `.env`, configuring the following:
 ```
-JSON_RPC_BLOCKCHAIN_URL=<URL to the blockchain one wants to observe. Must be a valid Eth JSON RPC implementor>
+EXPORTER_CONFIG_FILE=<Exporter config file locaten in the production/exporter folder, like `sample.yaml`>
 PROM_REMOTE_WRITE_URL=<Grafana Cloud prometheus remote write URL>
 PROM_GCOM_USER_ID=<Prometheus instance id>
 PROM_GCOM_API_KEY=<Grafana Cloud API Key with MetricsPublisher role>
 ```
-
-3. Run: `docker-compose up -d`
+4. Run: `docker-compose up -d`
 
 ## Contributing
 

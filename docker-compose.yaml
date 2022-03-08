@@ -4,11 +4,11 @@ services:
     build: .
     entrypoint: 
       - ./ethereum_exporter
-      - -url=${JSON_RPC_BLOCKCHAIN_URL}
-      - -erc20ContractAddresses=${ERC20_CONTRACT_ADDRESSES}
-      - -address.checkBalance=${ADDRESS_CHECK_BALANCE}
+      - -config=/etc/exporter-config/${EXPORTER_CONFIG_FILE}
     ports:
     - "9368:9368"
+    volumes:
+      - ./production/exporter:/etc/exporter-config
   agent:
     image: grafana/agent:latest
     volumes:
