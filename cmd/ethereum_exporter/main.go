@@ -56,7 +56,7 @@ func main() {
 	for _, stringAddr := range stringAddresses {
 		erc20Addresses = append(erc20Addresses, common.HexToAddress(stringAddr))
 	}
-	log.Printf("Detected %d ERC-20 smart contract to monitor\n", len(erc20Addresses))
+	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(erc20Addresses))
 
 	rpc, err := rpc.Dial(*url)
 	if err != nil {

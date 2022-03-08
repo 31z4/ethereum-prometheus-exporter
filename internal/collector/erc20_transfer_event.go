@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
+	"log"
 	"math"
 	"math/big"
 	"sync"
@@ -67,6 +68,8 @@ func NewERC20TransferEvent(client ContractClient, contractAddresses []common.Add
 		if err != nil {
 			return nil, err
 		}
+
+		log.Printf("Got info for %s, symbol %s\n", info.Address, info.Symbol)
 		clients[info] = filterer
 	}
 
