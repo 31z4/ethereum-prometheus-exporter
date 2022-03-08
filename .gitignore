@@ -2,3 +2,5 @@
 .idea/
 events_test
 build/
+production/exporter/*.yaml
+!production/exporter/sample.yaml

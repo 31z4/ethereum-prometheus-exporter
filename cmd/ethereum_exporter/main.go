@@ -4,18 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/31z4/ethereum-prometheus-exporter/internal/collector"
+	"github.com/31z4/ethereum-prometheus-exporter/internal/config"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"os"
-	"strings"
-
-	"github.com/31z4/ethereum-prometheus-exporter/internal/collector"
-	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var version = "undefined"
@@ -34,13 +32,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
-	addr := flag.String("addr", ":9368", "listen address")
-	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
-
-	walletAddress := flag.String("address.checkBalance", "", "Wallet address to check balance")
-	erc20ContractAddresses := flag.String("erc20.contracts", "", "Comma-separated list of hexa ERC-20 contract addresses to listen for events.")
-
+	configFile := flag.String("config", "", "path to config file")
 	ver := flag.Bool("v", false, "print version number and exit")
 
 	flag.Parse()
@@ -53,42 +45,46 @@ func main() {
 		os.Exit(0)
 	}
 
-	var erc20Addresses []common.Address
-	stringAddresses := strings.Split(*erc20ContractAddresses, ",")
-	for _, stringAddr := range stringAddresses {
-		if !common.IsHexAddress(stringAddr) {
-			log.Fatalf("%s is not a valid address", stringAddr)
-		}
-		erc20Addresses = append(erc20Addresses, common.HexToAddress(stringAddr))
+	cfg, err := config.ParseConfigFromFile(*configFile)
+	if err != nil {
+		log.Fatalf("Failed to read config file (%v): %v", configFile, err)
 	}
-	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(erc20Addresses))
 
-	rpc, err := rpc.Dial(*url)
+	// Initiate clients
+	rpc, err := rpc.Dial(cfg.General.EthProviderURL)
 	if err != nil {
 		log.Fatalf("failed to create RPC client: %v", err)
 	}
 
-	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, *walletAddress)
-
-	client, err := ethclient.Dial(*url)
+	client, err := ethclient.Dial(cfg.General.EthProviderURL)
 	if err != nil {
 		log.Fatalf("failed to create ETH client: %v", err)
 	}
 
-	if startBlockNumber == nil || *startBlockNumber == 0 {
+	if cfg.General.StartBlockNumber == 0 {
 		log.Printf("Setting startBlockNumber to current block num")
 		lastBlock, err := client.BlockNumber(context.Background())
 		if err != nil {
 			log.Fatalf("failed to get last block number: %v", err)
 		}
 		log.Printf("last block number: %d\n", lastBlock)
-		*startBlockNumber = lastBlock
+		cfg.General.StartBlockNumber = lastBlock
 	}
 
-	coll, err := collector.NewERC20TransferEvent(client, erc20Addresses, *startBlockNumber)
+	// ERC-20 Targets
+	var addresses []common.Address
+	for _, target := range cfg.Target.ERC20 {
+		addresses = append(addresses, common.HexToAddress(target.ContractAddr))
+	}
+	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(addresses))
+
+	coll, err := collector.NewERC20TransferEvent(client, addresses, cfg.General.StartBlockNumber)
 	if err != nil {
 		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
+
+	// Wallet  Target
+	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, cfg.Target.Wallet.Addr)
 
 	registry := prometheus.NewPedanticRegistry()
 	registry.MustRegister(
@@ -112,5 +108,5 @@ func main() {
 	})
 
 	http.Handle("/metrics", handler)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(cfg.General.ServerURL, nil))
 }
