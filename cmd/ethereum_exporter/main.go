@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/31z4/ethereum-prometheus-exporter/internal/collector"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -35,10 +36,12 @@ func main() {
 
 	url := flag.String("url", "http://localhost:8545", "Ethereum JSON-RPC URL")
 	addr := flag.String("addr", ":9368", "listen address")
-	ver := flag.Bool("v", false, "print version number and exit")
-	erc20ContractAddress := flag.String("erc20.contractAddress", "", "ERC20 Contract Address to listen for events")
 	startBlockNumber := flag.Uint64("startBlockNumber", 0, "block number from where to start watching events")
+
 	walletAddress := flag.String("address.checkBalance", "", "Wallet address to check balance")
+	erc20ContractAddresses := flag.String("erc20.contracts", "", "Comma-separated list of hexa ERC-20 contract addresses to listen for events.")
+
+	ver := flag.Bool("v", false, "print version number and exit")
 
 	flag.Parse()
 	if len(flag.Args()) > 0 {
@@ -50,7 +53,15 @@ func main() {
 		os.Exit(0)
 	}
 
-	erc20Address := common.HexToAddress(*erc20ContractAddress)
+	var erc20Addresses []common.Address
+	stringAddresses := strings.Split(*erc20ContractAddresses, ",")
+	for _, stringAddr := range stringAddresses {
+		if !common.IsHexAddress(stringAddr) {
+			log.Fatalf("%s is not a valid address", stringAddr)
+		}
+		erc20Addresses = append(erc20Addresses, common.HexToAddress(stringAddr))
+	}
+	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(erc20Addresses))
 
 	rpc, err := rpc.Dial(*url)
 	if err != nil {
@@ -64,7 +75,8 @@ func main() {
 		log.Fatalf("failed to create ETH client: %v", err)
 	}
 
-	if startBlockNumber == nil {
+	if startBlockNumber == nil || *startBlockNumber == 0 {
+		log.Printf("Setting startBlockNumber to current block num")
 		lastBlock, err := client.BlockNumber(context.Background())
 		if err != nil {
 			log.Fatalf("failed to get last block number: %v", err)
@@ -73,7 +85,7 @@ func main() {
 		*startBlockNumber = lastBlock
 	}
 
-	coll, err := collector.NewERC20TransferEvent(client, erc20Address, *startBlockNumber)
+	coll, err := collector.NewERC20TransferEvent(client, erc20Addresses, *startBlockNumber)
 	if err != nil {
 		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
