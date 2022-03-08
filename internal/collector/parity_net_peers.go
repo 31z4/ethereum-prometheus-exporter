@@ -2,6 +2,7 @@ package collector
 
 import (
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -42,8 +43,9 @@ func (collector *ParityNetPeers) Describe(ch chan<- *prometheus.Desc) {
 func (collector *ParityNetPeers) Collect(ch chan<- prometheus.Metric) {
 	var result *peersResult
 	if err := collector.rpc.Call(&result, "parity_netPeers"); err != nil {
-		ch <- prometheus.NewInvalidMetric(collector.activeDesc, err)
-		ch <- prometheus.NewInvalidMetric(collector.connectedDesc, err)
+		wErr := errors.Wrap(err, "parity metrics are only available in OpenEthereum")
+		ch <- prometheus.NewInvalidMetric(collector.activeDesc, wErr)
+		ch <- prometheus.NewInvalidMetric(collector.connectedDesc, wErr)
 		return
 	}
 
