@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/config"
 )
 
 type EthGetBalance struct {
@@ -14,15 +15,15 @@ type EthGetBalance struct {
 	desc    *prometheus.Desc
 }
 
-func NewEthGetBalance(rpc *rpc.Client, address string) *EthGetBalance {
+func NewEthGetBalance(rpc *rpc.Client, wallet config.WalletTarget) *EthGetBalance {
 	return &EthGetBalance{
 		rpc:     rpc,
-		address: common.HexToAddress(address),
+		address: common.HexToAddress(wallet.Addr),
 		desc: prometheus.NewDesc(
 			"eth_get_balance",
 			"get balance",
 			nil,
-			nil,
+			map[string]string{"wallet_name": wallet.Name},
 		),
 	}
 }

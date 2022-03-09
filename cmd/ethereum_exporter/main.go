@@ -4,17 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/eth"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/contracts/erc20"
-	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/eth"
 	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/net"
 	"github.com/thepalbi/ethereum-prometheus-exporter/internal/config"
 )
@@ -75,31 +74,27 @@ func main() {
 	}
 
 	// ERC-20 Targets
-	var addresses []common.Address
-	for _, target := range cfg.Target.ERC20 {
-		addresses = append(addresses, common.HexToAddress(target.ContractAddr))
-	}
-	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(addresses))
-
-	coll, err := erc20.NewERC20TransferEvent(client, addresses, cfg.General.StartBlockNumber)
+	coll, err := erc20.NewERC20TransferEvent(client, cfg.Target.ERC20, cfg.General.StartBlockNumber)
 	if err != nil {
 		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
+	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(cfg.Target.ERC20))
 
 	// Wallet  Target
-	collectorGetAddressBalance := eth.NewEthGetBalance(rpc, cfg.Target.Wallet.Addr)
+	collectorGetAddressBalance := eth.NewEthGetBalance(rpc, cfg.Target.Wallet)
 
+	chainName := cfg.General.EthBlockchainName
 	registry := prometheus.NewPedanticRegistry()
 	registry.MustRegister(
-		net.NewNetPeerCount(rpc),
-		eth.NewEthBlockNumber(rpc),
-		eth.NewEthBlockTimestamp(rpc),
-		eth.NewEthGasPrice(rpc),
-		eth.NewEthEarliestBlockTransactions(rpc),
-		eth.NewEthLatestBlockTransactions(rpc),
-		eth.NewEthPendingBlockTransactions(rpc),
-		eth.NewEthHashrate(rpc),
-		eth.NewEthSyncing(rpc),
+		net.NewNetPeerCount(rpc, chainName),
+		eth.NewEthBlockNumber(rpc, chainName),
+		eth.NewEthBlockTimestamp(rpc, chainName),
+		eth.NewEthGasPrice(rpc, chainName),
+		eth.NewEthEarliestBlockTransactions(rpc, chainName),
+		eth.NewEthLatestBlockTransactions(rpc, chainName),
+		eth.NewEthPendingBlockTransactions(rpc, chainName),
+		eth.NewEthHashrate(rpc, chainName),
+		eth.NewEthSyncing(rpc, chainName),
 		coll,
 		collectorGetAddressBalance,
 	)

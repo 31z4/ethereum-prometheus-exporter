@@ -22,26 +22,26 @@ type syncingResult struct {
 	HighestBlock  hexutil.Uint64
 }
 
-func NewEthSyncing(rpc *rpc.Client) *EthSyncing {
+func NewEthSyncing(rpc *rpc.Client, label string) *EthSyncing {
 	return &EthSyncing{
 		rpc: rpc,
 		startingDesc: prometheus.NewDesc(
 			"eth_sync_starting",
 			"block number at which current import started",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 		currentDesc: prometheus.NewDesc(
 			"eth_sync_current",
 			"number of most recent block",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 		highestDesc: prometheus.NewDesc(
 			"eth_sync_highest",
 			"estimated number of highest block",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 	}
 }

@@ -12,13 +12,15 @@ type ERC20Target struct {
 
 type WalletTarget struct {
 	Addr string `yaml:"address"`
+	Name string `yaml:"name"`
 }
 
 type Config struct {
 	General struct {
-		EthProviderURL   string `yaml:"eth_provider_url"`
-		ServerURL        string `yaml:"server_url"`
-		StartBlockNumber uint64 `yaml:"start_block_number"`
+		EthProviderURL    string `yaml:"eth_provider_url"`
+		EthBlockchainName string `yaml:"eth_blockchain_name"`
+		ServerURL         string `yaml:"server_url"`
+		StartBlockNumber  uint64 `yaml:"start_block_number"`
 	} `yaml:"general"`
 	Target struct {
 		ERC20  []ERC20Target `yaml:"erc20"`

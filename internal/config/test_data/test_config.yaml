@@ -1,5 +1,6 @@
 general:
   eth_provider_url: "abc"
+  eth_blockchain_name: "some blockchain name"
   server_url: "qwe"
   start_block_number: 123
 targets:
@@ -10,3 +11,4 @@ targets:
     contract: "0x123124"
   wallet:
     address: "0x123"
+    name: "wallet 1"

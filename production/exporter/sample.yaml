@@ -1,5 +1,6 @@
 general:
   eth_provider_url:
+  eth_blockchain_name:
   server_url: localhost:9368
   start_block_number: 0
 targets:
@@ -12,3 +13,4 @@ targets:
       contract: 0xdAC17F958D2ee523a2206206994597C13D831ec7
   wallet:
     address:
+    name:

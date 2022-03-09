@@ -11,14 +11,14 @@ type EthPendingBlockTransactions struct {
 	desc *prometheus.Desc
 }
 
-func NewEthPendingBlockTransactions(rpc *rpc.Client) *EthPendingBlockTransactions {
+func NewEthPendingBlockTransactions(rpc *rpc.Client, label string) *EthPendingBlockTransactions {
 	return &EthPendingBlockTransactions{
 		rpc: rpc,
 		desc: prometheus.NewDesc(
 			"eth_pending_block_transactions",
 			"the number of transactions in pending block",
 			nil,
-			nil,
+			map[string]string{"blockchain_name": label},
 		),
 	}
 }
