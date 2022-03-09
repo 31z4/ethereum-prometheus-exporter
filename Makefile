@@ -10,3 +10,8 @@ tokenInterface: generateABI transpileABIToGo
 
 docker-compose: tokenInterface
 	docker-compose build
+
+mixin: lint-mixin
+
+lint-mixin:
+	mixtool lint mixin/mixin.libsonnet
