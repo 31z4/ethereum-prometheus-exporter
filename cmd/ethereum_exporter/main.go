@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/31z4/ethereum-prometheus-exporter/internal/collector"
 	"github.com/31z4/ethereum-prometheus-exporter/internal/config"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
@@ -72,13 +71,9 @@ func main() {
 	}
 
 	// ERC-20 Targets
-	var addresses []common.Address
-	for _, target := range cfg.Target.ERC20 {
-		addresses = append(addresses, common.HexToAddress(target.ContractAddr))
-	}
-	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(addresses))
+	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(cfg.Target.ERC20))
 
-	coll, err := collector.NewERC20TransferEvent(client, addresses, cfg.General.StartBlockNumber)
+	coll, err := collector.NewERC20TransferEvent(client, cfg.Target.ERC20, cfg.General.StartBlockNumber)
 	if err != nil {
 		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
