@@ -1,4 +1,4 @@
-package collector
+package eth
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthGasPriceCollectError(t *testing.T) {
+func TestEthEarliestBlockTransactionsCollectError(t *testing.T) {
 	rpc, err := rpc.DialHTTP("http://localhost")
 	if err != nil {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthGasPrice(rpc)
+	collector := NewEthEarliestBlockTransactions(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -39,9 +39,9 @@ func TestEthGasPriceCollectError(t *testing.T) {
 	}
 }
 
-func TestEthGasPriceCollect(t *testing.T) {
+func TestEthEarliestBlockTransactionsCollect(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte(`{"result": "0x9184e72a000"}"`))
+		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
 		if err != nil {
 			t.Fatalf("could not write a response: %#v", err)
 		}
@@ -53,7 +53,7 @@ func TestEthGasPriceCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthGasPrice(rpc)
+	collector := NewEthEarliestBlockTransactions(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -71,8 +71,8 @@ func TestEthGasPriceCollect(t *testing.T) {
 		if got := len(metric.Label); got > 0 {
 			t.Fatalf("expected 0 labels, got %d", got)
 		}
-		if got := *metric.Gauge.Value; got != 10000000000000 {
-			t.Fatalf("got %v, want 10000000000000", got)
+		if got := *metric.Gauge.Value; got != 3220 {
+			t.Fatalf("got %v, want 3220", got)
 		}
 	}
 }

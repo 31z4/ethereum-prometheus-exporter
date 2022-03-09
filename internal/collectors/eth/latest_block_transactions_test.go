@@ -1,4 +1,4 @@
-package collector
+package eth
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthHashrateCollectError(t *testing.T) {
+func TestEthLatestBlockTransactionsCollectError(t *testing.T) {
 	rpc, err := rpc.DialHTTP("http://localhost")
 	if err != nil {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthHashrate(rpc)
+	collector := NewEthLatestBlockTransactions(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -39,7 +39,7 @@ func TestEthHashrateCollectError(t *testing.T) {
 	}
 }
 
-func TestEthHashrateCollect(t *testing.T) {
+func TestEthLatestBlockTransactionsCollect(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
 		if err != nil {
@@ -53,7 +53,7 @@ func TestEthHashrateCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthHashrate(rpc)
+	collector := NewEthLatestBlockTransactions(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)

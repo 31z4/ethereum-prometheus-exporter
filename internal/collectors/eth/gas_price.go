@@ -1,4 +1,4 @@
-package collector
+package eth
 
 import (
 	"math/big"

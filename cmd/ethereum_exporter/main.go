@@ -4,16 +4,19 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/31z4/ethereum-prometheus-exporter/internal/collector"
-	"github.com/31z4/ethereum-prometheus-exporter/internal/config"
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"net/http"
-	"os"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/contracts/erc20"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/eth"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/collectors/net"
+	"github.com/thepalbi/ethereum-prometheus-exporter/internal/config"
 )
 
 var version = "undefined"
@@ -78,26 +81,25 @@ func main() {
 	}
 	log.Printf("Detected %d ERC-20 smart contract(s) to monitor\n", len(addresses))
 
-	coll, err := collector.NewERC20TransferEvent(client, addresses, cfg.General.StartBlockNumber)
+	coll, err := erc20.NewERC20TransferEvent(client, addresses, cfg.General.StartBlockNumber)
 	if err != nil {
 		log.Fatalf("failed to create erc20 transfer collector: %v", err)
 	}
 
 	// Wallet  Target
-	collectorGetAddressBalance := collector.NewEthGetBalance(rpc, cfg.Target.Wallet.Addr)
+	collectorGetAddressBalance := eth.NewEthGetBalance(rpc, cfg.Target.Wallet.Addr)
 
 	registry := prometheus.NewPedanticRegistry()
 	registry.MustRegister(
-		collector.NewNetPeerCount(rpc),
-		collector.NewEthBlockNumber(rpc),
-		collector.NewEthBlockTimestamp(rpc),
-		collector.NewEthGasPrice(rpc),
-		collector.NewEthEarliestBlockTransactions(rpc),
-		collector.NewEthLatestBlockTransactions(rpc),
-		collector.NewEthPendingBlockTransactions(rpc),
-		collector.NewEthHashrate(rpc),
-		collector.NewEthSyncing(rpc),
-		collector.NewParityNetPeers(rpc),
+		net.NewNetPeerCount(rpc),
+		eth.NewEthBlockNumber(rpc),
+		eth.NewEthBlockTimestamp(rpc),
+		eth.NewEthGasPrice(rpc),
+		eth.NewEthEarliestBlockTransactions(rpc),
+		eth.NewEthLatestBlockTransactions(rpc),
+		eth.NewEthPendingBlockTransactions(rpc),
+		eth.NewEthHashrate(rpc),
+		eth.NewEthSyncing(rpc),
 		coll,
 		collectorGetAddressBalance,
 	)

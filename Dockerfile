@@ -5,7 +5,7 @@ COPY . .
 
 ARG VERSION=undefined
 RUN CGO_ENABLED=0 \
-    go build -ldflags "-s -w -X main.version=$VERSION" github.com/31z4/ethereum-prometheus-exporter/cmd/ethereum_exporter
+    go build -ldflags "-s -w -X main.version=$VERSION" github.com/thepalbi/ethereum-prometheus-exporter/cmd/ethereum_exporter
 
 FROM scratch
 

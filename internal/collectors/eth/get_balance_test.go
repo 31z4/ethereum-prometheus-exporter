@@ -1,9 +1,9 @@
-package collector
+package eth
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/rpc"
@@ -11,37 +11,15 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthLatestBlockTransactionsCollectError(t *testing.T) {
-	rpc, err := rpc.DialHTTP("http://localhost")
-	if err != nil {
-		t.Fatalf("rpc connection error: %#v", err)
-	}
+const (
+	mockWalletAddress = "0x1234567890abcdef1234567890abcdef12345678"
+	mockResult        = "0x17b6d1ef1dff6b88"
+	expectedValue     = 1708783933564349320
+)
 
-	collector := NewEthLatestBlockTransactions(rpc)
-	ch := make(chan prometheus.Metric, 1)
-
-	collector.Collect(ch)
-	close(ch)
-
-	if got := len(ch); got != 1 {
-		t.Fatalf("got %v, want 1", got)
-	}
-
-	var metric dto.Metric
-	for result := range ch {
-		err := result.Write(&metric)
-		if err == nil {
-			t.Fatalf("expected invalid metric, got %#v", metric)
-		}
-		if _, ok := err.(*url.Error); !ok {
-			t.Fatalf("unexpected error %#v", err)
-		}
-	}
-}
-
-func TestEthLatestBlockTransactionsCollect(t *testing.T) {
+func TestEthGetBalance(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
+		_, err := w.Write([]byte(fmt.Sprintf(`{"result": "%s"}"`, mockResult)))
 		if err != nil {
 			t.Fatalf("could not write a response: %#v", err)
 		}
@@ -53,7 +31,7 @@ func TestEthLatestBlockTransactionsCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthLatestBlockTransactions(rpc)
+	collector := NewEthGetBalance(rpc, mockWalletAddress)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -71,8 +49,8 @@ func TestEthLatestBlockTransactionsCollect(t *testing.T) {
 		if got := len(metric.Label); got > 0 {
 			t.Fatalf("expected 0 labels, got %d", got)
 		}
-		if got := *metric.Gauge.Value; got != 3220 {
-			t.Fatalf("got %v, want 3220", got)
+		if got := *metric.Gauge.Value; got != expectedValue {
+			t.Fatalf("got %v, want %d", got, expectedValue)
 		}
 	}
 }

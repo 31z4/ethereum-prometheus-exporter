@@ -1,4 +1,4 @@
-package collector
+package eth
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthEarliestBlockTransactionsCollectError(t *testing.T) {
+func TestEthBlockNumberCollectError(t *testing.T) {
 	rpc, err := rpc.DialHTTP("http://localhost")
 	if err != nil {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthEarliestBlockTransactions(rpc)
+	collector := NewEthBlockNumber(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -39,7 +39,7 @@ func TestEthEarliestBlockTransactionsCollectError(t *testing.T) {
 	}
 }
 
-func TestEthEarliestBlockTransactionsCollect(t *testing.T) {
+func TestEthBlockNumberCollect(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
 		if err != nil {
@@ -53,7 +53,7 @@ func TestEthEarliestBlockTransactionsCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthEarliestBlockTransactions(rpc)
+	collector := NewEthBlockNumber(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)

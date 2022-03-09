@@ -1,4 +1,4 @@
-package collector
+package erc20
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/31z4/ethereum-prometheus-exporter/token"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/thepalbi/ethereum-prometheus-exporter/token"
 )
 
 type BlockNumberGetter interface {

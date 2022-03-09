@@ -1,4 +1,4 @@
-package collector
+package net
 
 import (
 	"github.com/ethereum/go-ethereum/common/hexutil"

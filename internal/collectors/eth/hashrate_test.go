@@ -1,4 +1,4 @@
-package collector
+package eth
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-func TestEthBlockTimestampCollectError(t *testing.T) {
+func TestEthHashrateCollectError(t *testing.T) {
 	rpc, err := rpc.DialHTTP("http://localhost")
 	if err != nil {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthBlockTimestamp(rpc)
+	collector := NewEthHashrate(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -39,14 +39,13 @@ func TestEthBlockTimestampCollectError(t *testing.T) {
 	}
 }
 
-func TestEthBlockTimestampCollect(t *testing.T) {
+func TestEthHashrateCollect(t *testing.T) {
 	rpcServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte(`{"result": {"number": "0xaca4b5", "timestamp": "0x5fbba343"}}`))
+		_, err := w.Write([]byte(`{"result": "0xc94"}"`))
 		if err != nil {
 			t.Fatalf("could not write a response: %#v", err)
 		}
 	}))
-
 	defer rpcServer.Close()
 
 	rpc, err := rpc.DialHTTP(rpcServer.URL)
@@ -54,7 +53,7 @@ func TestEthBlockTimestampCollect(t *testing.T) {
 		t.Fatalf("rpc connection error: %#v", err)
 	}
 
-	collector := NewEthBlockTimestamp(rpc)
+	collector := NewEthHashrate(rpc)
 	ch := make(chan prometheus.Metric, 1)
 
 	collector.Collect(ch)
@@ -72,8 +71,8 @@ func TestEthBlockTimestampCollect(t *testing.T) {
 		if got := len(metric.Label); got > 0 {
 			t.Fatalf("expected 0 labels, got %d", got)
 		}
-		if got := *metric.Gauge.Value; got != 1606132547 {
-			t.Fatalf("got %v, want 1606132547 ", got)
+		if got := *metric.Gauge.Value; got != 3220 {
+			t.Fatalf("got %v, want 3220", got)
 		}
 	}
 }
