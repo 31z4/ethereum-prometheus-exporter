@@ -53,7 +53,7 @@ jobs:
 
   test:
     docker:
-      - image: golang:1.16
+      - image: golang:1.20
     steps:
       - checkout
 
@@ -65,14 +65,14 @@ jobs:
 
   lint:
     docker:
-    - image: golang:1.16
+    - image: golang:1.20
     steps:
     - checkout
 
     - run:
         name: Download and install GolangCI-Lint
         command: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
 
     - run:
         name: Run GolangCI-Lint
