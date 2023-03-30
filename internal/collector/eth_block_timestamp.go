@@ -34,7 +34,7 @@ func (collector *EthBlockTimestamp) Describe(ch chan<- *prometheus.Desc) {
 func (collector *EthBlockTimestamp) Collect(ch chan<- prometheus.Metric) {
 	var result *blockResult
 
-	if err := collector.rpc.Call(&result, "eth_getBlockByNumber", "latest", 0); err != nil {
+	if err := collector.rpc.Call(&result, "eth_getBlockByNumber", "latest", false); err != nil {
 		ch <- prometheus.NewInvalidMetric(collector.desc, err)
 		return
 	}
