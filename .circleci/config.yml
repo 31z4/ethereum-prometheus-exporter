@@ -53,7 +53,7 @@ jobs:
 
   test:
     docker:
-      - image: golang:1.16
+      - image: golang:1.20
     steps:
       - checkout
 
@@ -65,7 +65,7 @@ jobs:
 
   lint:
     docker:
-    - image: golang:1.16
+    - image: golang:1.20
     steps:
     - checkout
 
