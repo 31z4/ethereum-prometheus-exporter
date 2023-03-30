@@ -47,21 +47,9 @@ Here is an example [`scrape_config`](https://prometheus.io/docs/prometheus/lates
 
 [Go modules](https://github.com/golang/go/wiki/Modules) is used for dependency management. Hence Go 1.11 is a minimum required version.
 
-[CircleCI Local CLI](https://circleci.com/docs/2.0/local-cli/) can be used to ensure that everything builds locally.
-
-    circleci build --job lint
-    circleci build --job test
-    circleci build --job build
-
 ## Contributing
 
 Contributions are greatly appreciated. The project follows the typical GitHub pull request model. Before starting any work, please either comment on an existing issue or file a new one.
-
-## Support and Donate
-
-You can show your appreciation for the project and support future development by donating.
-
-[![Donate with Ethereum](https://en.cryptobadges.io/badge/big/0xcaDe516c2c2d916eDf44b958ED5B52C01039fad6)](https://en.cryptobadges.io/donate/0xcaDe516c2c2d916eDf44b958ED5B52C01039fad6)
 
 ## License
 
