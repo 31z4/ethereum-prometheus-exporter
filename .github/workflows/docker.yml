@@ -9,6 +9,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+
 jobs:
   build-and-push-image:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'pull_request'
